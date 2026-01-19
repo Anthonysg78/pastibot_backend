@@ -24,4 +24,4 @@ RUN npm run build
 EXPOSE 3000
 
 # Comando de inicio: Migraciones + App
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
+CMD ["npm", "run", "start:prod"]
