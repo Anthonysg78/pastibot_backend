@@ -107,8 +107,8 @@ export class AuthController {
   // =====================================================
   @Post('set-role')
   @UseGuards(JwtAuthGuard)
-  async setRole(@Req() req: any, @Body('role') role: Role) {
-    return this.authService.setRole(req.user.id, role);
+  async setRole(@Req() req: any, @Body('role') role: Role, @Body('caregiverCode') caregiverCode?: string) {
+    return this.authService.setRole(req.user.id, role, caregiverCode);
   }
 
   // =====================================================

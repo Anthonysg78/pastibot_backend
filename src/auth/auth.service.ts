@@ -137,14 +137,47 @@ export class AuthService {
   // ===============================
   // SET ROLE
   // ===============================
-  async setRole(userId: number, role: Role) {
+  async setRole(userId: number, role: Role, caregiverCode?: string) {
     if (role === 'CUIDADOR') {
-      throw new UnauthorizedException('No puedes asignarte el rol de cuidador.');
+      throw new UnauthorizedException('No puedes asignarte el rol de cuidador por cuenta propia.');
     }
+
+    let caregiver: any = null;
+    if (role === 'PACIENTE') {
+      if (!caregiverCode) {
+        throw new ConflictException('Debes proporcionar el código de tu cuidador.');
+      }
+
+      caregiver = await (this.prisma.user as any).findUnique({
+        where: { sharingCode: caregiverCode.toUpperCase() },
+        include: { patients: true }
+      });
+
+      if (!caregiver) {
+        throw new ConflictException('Código de cuidador inválido.');
+      }
+
+      if (caregiver.patients.length >= 2) {
+        throw new ConflictException('Este profesional ya tiene 2 pacientes vinculados (Límite alcanzado).');
+      }
+    }
+
     const updated = await this.prisma.user.update({
       where: { id: userId },
       data: { role },
     });
+
+    // Vincular automáticamente si es paciente
+    if (role === 'PACIENTE' && caregiver) {
+      await (this.prisma.patient as any).create({
+        data: {
+          name: updated.name,
+          userId: updated.id,
+          caregiverId: caregiver.id,
+          gender: updated.gender,
+        }
+      });
+    }
 
     return await this.buildAuthResponse(updated);
   }
