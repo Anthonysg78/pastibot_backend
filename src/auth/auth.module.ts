@@ -33,7 +33,7 @@ import { GoogleAuthGuard } from './google.guard';
 
     // OAUTH STRATEGIES
     GoogleStrategy,
-    FacebookStrategy,
+    // FacebookStrategy,
     // XStrategy,
 
     // CUSTOM GUARDS
