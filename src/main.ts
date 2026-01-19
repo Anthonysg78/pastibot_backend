@@ -5,9 +5,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // 📸 Aumentar límite de carga para fotos de medicina (Base64)
-  const bodyParser = require('body-parser');
-  app.use(bodyParser.json({ limit: '15mb' }));
-  app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
+  const express = require('express');
+  app.use(express.json({ limit: '15mb' }));
+  app.use(express.urlencoded({ limit: '15mb', extended: true }));
 
   app.enableCors({
     origin: true,
