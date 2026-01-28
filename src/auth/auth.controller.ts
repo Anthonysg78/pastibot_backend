@@ -52,15 +52,15 @@ export class AuthController {
   @Get('google/redirect')
   @UseGuards(GoogleAuthGuard)
   async googleRedirect(@Req() req: any, @Res() res: Response) {
+    console.log('🏁 Iniciando proceso de redirección Google OAuth para:', req.user?.email);
     const auth = await this.authService.loginFromOAuth(req.user);
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:8100';
 
-    // Permite "com.pastibot.app" -> "com.pastibot.app://social-success"
     const redirectBase = frontendUrl.includes('://') ? frontendUrl : `${frontendUrl}://`;
+    const finalUrl = `${redirectBase}social-success?token=${auth.accessToken}${auth.firebaseToken ? `&firebaseToken=${auth.firebaseToken}` : ''}`;
 
-    return res.redirect(
-      `${redirectBase}social-success?token=${auth.accessToken}${auth.firebaseToken ? `&firebaseToken=${auth.firebaseToken}` : ''}`,
-    );
+    console.log('🚀 Redirigiendo a la App:', finalUrl);
+    return res.redirect(finalUrl);
   }
 
   // =====================================================
