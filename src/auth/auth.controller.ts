@@ -59,7 +59,7 @@ export class AuthController {
     const redirectBase = frontendUrl.includes('://') ? frontendUrl : `${frontendUrl}://`;
 
     return res.redirect(
-      `${redirectBase}social-success?token=${auth.accessToken}`,
+      `${redirectBase}social-success?token=${auth.accessToken}${auth.firebaseToken ? `&firebaseToken=${auth.firebaseToken}` : ''}`,
     );
   }
 
@@ -78,7 +78,7 @@ export class AuthController {
     const redirectBase = frontendUrl.includes('://') ? frontendUrl : `${frontendUrl}://`;
 
     return res.redirect(
-      `${redirectBase}social-success?token=${auth.accessToken}`,
+      `${redirectBase}social-success?token=${auth.accessToken}${auth.firebaseToken ? `&firebaseToken=${auth.firebaseToken}` : ''}`,
     );
   }
 
@@ -97,7 +97,7 @@ export class AuthController {
     const redirectBase = frontendUrl.includes('://') ? frontendUrl : `${frontendUrl}://`;
 
     return res.redirect(
-      `${redirectBase}social-success?token=${auth.accessToken}`,
+      `${redirectBase}social-success?token=${auth.accessToken}${auth.firebaseToken ? `&firebaseToken=${auth.firebaseToken}` : ''}`,
     );
   }
 
