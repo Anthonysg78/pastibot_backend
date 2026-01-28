@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { FirebaseService } from './firebase.service';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
@@ -16,6 +17,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
+    private firebaseService: FirebaseService,
   ) { }
 
   // ===============================
@@ -292,8 +294,16 @@ export class AuthService {
       };
     }
 
+    // 🚀 GENERAR FIREBASE CUSTOM TOKEN
+    // Usamos el email como UID de Firebase para consistencia
+    const firebaseToken = await this.firebaseService.createCustomToken(fullUser.email, {
+      role: fullUser.role,
+      dbId: fullUser.id
+    });
+
     return {
       accessToken: this.signToken(fullUser),
+      firebaseToken, // 👈 Se envía al frontend
       user: fullUser,
     };
   }

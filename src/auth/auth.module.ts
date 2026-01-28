@@ -4,6 +4,7 @@ import { PassportModule } from '@nestjs/passport';
 
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
+import { FirebaseService } from './firebase.service';
 import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './jwt.guard';
@@ -28,6 +29,7 @@ import { GoogleAuthGuard } from './google.guard';
   controllers: [AuthController],
   providers: [
     AuthService,
+    FirebaseService,
     JwtStrategy,
     JwtAuthGuard,
 
