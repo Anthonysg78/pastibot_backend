@@ -21,28 +21,28 @@ export class FirebaseService implements OnModuleInit {
                     return false;
                 }
 
-                // 🛠️ LIMPIEZA INTEGRAL DE LA CLAVE (A prueba de balas)
-                // 1. Quitar espacios y comillas externas
-                let rawKey = privateKey.trim();
-                if (rawKey.startsWith('"') && rawKey.endsWith('"')) {
-                    rawKey = rawKey.substring(1, rawKey.length - 1);
-                }
+                // 🛡️ LIMPIEZA INDESTRUCTIBLE DE LA CLAVE
+                // 1. Quitar comillas y limpiar espacios externos
+                let body = privateKey.replace(/"/g, '').trim();
 
-                // 2. Convertir \n literal (\ y n) a saltos de línea reales
-                // y limpiar cualquier espacio residual
-                let body = rawKey.replace(/\\n/g, '\n').trim();
+                // 2. Convertir \n literal a saltos de línea reales
+                body = body.replace(/\\n/g, '\n');
 
-                // 3. RECONSTRUCCIÓN PEM ESTÁNDAR
-                // Quitamos cualquier cabecera que ya traiga para evitar duplicados
-                body = body.replace('-----BEGIN PRIVATE KEY-----', '').replace('-----END PRIVATE KEY-----', '').trim();
+                // 3. Quitar cabeceras y pies si existen para limpiar el "cuerpo" base64
+                body = body.replace(/-----BEGIN PRIVATE KEY-----/g, '')
+                    .replace(/-----END PRIVATE KEY-----/g, '')
+                    .trim();
 
-                // El formato PEM final DEBE tener saltos de línea reales
-                const cleanedKey = `-----BEGIN PRIVATE KEY-----\n${body}\n-----END PRIVATE KEY-----`;
+                // 4. QUITAR TODO EL ESPACIO EN BLANCO INTERNO (Saltos de línea, espacios, etc.)
+                // Esto nos deja solo el chorro de texto Base64 "puro".
+                const pureBase64 = body.replace(/\s+/g, '');
 
-                console.log('🔍 Análisis de Clave Privada:');
-                console.log(`- Empieza con: "${cleanedKey.substring(0, 30)}..."`);
-                console.log(`- Termina con: "...${cleanedKey.substring(cleanedKey.length - 30)}"`);
-                console.log(`- Longitud total: ${cleanedKey.length}`);
+                // 5. Reconstruir el formato PEM exacto (Cabecera + Base64 en una sola línea + Pie)
+                const cleanedKey = `-----BEGIN PRIVATE KEY-----\n${pureBase64}\n-----END PRIVATE KEY-----`;
+
+                console.log('🔍 Análisis de Clave Privada (Modo Indestructible):');
+                console.log(`- Inicio: ${cleanedKey.substring(0, 40)}...`);
+                console.log(`- Longitud del chorro Base64: ${pureBase64.length}`);
 
                 admin.initializeApp({
                     credential: admin.credential.cert({
