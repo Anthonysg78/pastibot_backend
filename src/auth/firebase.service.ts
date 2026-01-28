@@ -21,28 +21,31 @@ export class FirebaseService implements OnModuleInit {
                     return false;
                 }
 
-                // 🛡️ LIMPIEZA INDESTRUCTIBLE DE LA CLAVE
-                // 1. Quitar comillas y limpiar espacios externos
-                let body = privateKey.replace(/"/g, '').trim();
+                // ☢️ LIMPIEZA NUCLEAR (Indestructible)
+                // 1. Quitar las cabeceras/pies si existen para que no se mezclen con el base64
+                let body = privateKey
+                    .replace(/-----BEGIN PRIVATE KEY-----/gi, '')
+                    .replace(/-----END PRIVATE KEY-----/gi, '')
+                    .replace(/\\n/g, ''); // Quitar literal \n por si acaso
 
-                // 2. Convertir \n literal a saltos de línea reales
-                body = body.replace(/\\n/g, '\n');
+                // 2. Extraer ÚNICAMENTE caracteres válidos de Base64 (A-Z, a-z, 0-9, +, /, =)
+                // Esto borra comillas, espacios, guiones de cabecera que hayan quedado, etc.
+                const pureBase64 = body.replace(/[^A-Za-z0-9+/=]/g, '');
 
-                // 3. Quitar cabeceras y pies si existen para limpiar el "cuerpo" base64
-                body = body.replace(/-----BEGIN PRIVATE KEY-----/g, '')
-                    .replace(/-----END PRIVATE KEY-----/g, '')
-                    .trim();
+                // 3. Formatear en bloques de 64 caracteres (estándar PEM estricto)
+                const chunks = pureBase64.match(/.{1,64}/g);
+                const cleanedKey = chunks
+                    ? `-----BEGIN PRIVATE KEY-----\n${chunks.join('\n')}\n-----END PRIVATE KEY-----\n`
+                    : '';
 
-                // 4. QUITAR TODO EL ESPACIO EN BLANCO INTERNO (Saltos de línea, espacios, etc.)
-                // Esto nos deja solo el chorro de texto Base64 "puro".
-                const pureBase64 = body.replace(/\s+/g, '');
+                console.log('🔍 Auditoría de Clave Firebase:');
+                console.log(`- Base64 detectado: ${pureBase64.substring(0, 20)}...[${pureBase64.length} chars]...${pureBase64.substring(pureBase64.length - 10)}`);
+                console.log(`- Longitud final PEM: ${cleanedKey.length}`);
 
-                // 5. Reconstruir el formato PEM exacto (Cabecera + Base64 en una sola línea + Pie)
-                const cleanedKey = `-----BEGIN PRIVATE KEY-----\n${pureBase64}\n-----END PRIVATE KEY-----`;
-
-                console.log('🔍 Análisis de Clave Privada (Modo Indestructible):');
-                console.log(`- Inicio: ${cleanedKey.substring(0, 40)}...`);
-                console.log(`- Longitud del chorro Base64: ${pureBase64.length}`);
+                if (pureBase64.length < 1500) {
+                    console.error('❌ ERROR: La clave parece demasiado corta o corrupta. Revisa Railway.');
+                    return false;
+                }
 
                 admin.initializeApp({
                     credential: admin.credential.cert({
