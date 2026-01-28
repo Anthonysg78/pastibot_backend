@@ -7,6 +7,11 @@ async function main() {
     const password = 'pastibot2026';
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Verificar si ya existe alguien con ese código para evitar el error P2002
+    const codeTaken = await prisma.user.findUnique({
+        where: { sharingCode: 'PASTIBOT' }
+    });
+
     const caregiver = await prisma.user.upsert({
         where: { email: 'cuidador@pastibot.com' },
         update: {},
@@ -20,7 +25,7 @@ async function main() {
             gender: 'Masculino',
             bio: 'Cuidador principal del sistema Pastibot.',
             photoUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Pastibot',
-            sharingCode: 'PASTIBOT',
+            sharingCode: codeTaken ? undefined : 'PASTIBOT', // 👈 Solo lo asigna si está libre
         } as any,
     });
 
