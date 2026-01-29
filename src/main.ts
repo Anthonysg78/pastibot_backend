@@ -19,6 +19,7 @@ async function bootstrap() {
         'https://pastibot-fronted.vercel.app', // Ejemplo si usas vercel
         /^capacitor:\/\/localhost$/,
         /^http:\/\/localhost$/,
+        'https://localhost', // 🟢 REQUERIDO para Android APK (androidScheme: 'https')
         'https://pastibotbackend-production.up.railway.app'
       ];
 
